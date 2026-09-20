@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -16,57 +16,82 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Derive version from tag
-        id: version
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
-
-      - name: Set package version from tag
-        run: |
-          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.version }}\"/" pyproject.toml
-
-      - name: Generate changelog
+      - name: Determine next version
+        id: bump
         uses: orhun/git-cliff-action@v4
-        id: changelog
         with:
           config: cliff.toml
-          args: --latest --strip header
-        env:
-          OUTPUT: CHANGES.md
+          args: --bumped-version
+
+      - name: Check whether a release is warranted
+        id: check
+        run: |
+          next="${{ steps.bump.outputs.content }}"
+          current="$(git describe --tags --abbrev=0 2>/dev/null || echo "")"
+          if [[ -z "$next" || "$next" == "$current" ]]; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "version=${next#v}" >> "$GITHUB_OUTPUT"
+            echo "tag=$next" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set package version
+        if: steps.check.outputs.release == 'true'
+        run: |
+          sed -i "s/^version = .*/version = \"${{ steps.check.outputs.version }}\"/" pyproject.toml
+
+      - name: Generate changelog for this release
+        if: steps.check.outputs.release == 'true'
+        uses: orhun/git-cliff-action@v4
+        id: release_notes
+        with:
+          config: cliff.toml
+          args: --unreleased --tag ${{ steps.check.outputs.tag }} --strip header
+
+      - name: Update CHANGELOG.md
+        if: steps.check.outputs.release == 'true'
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --tag ${{ steps.check.outputs.tag }} --output CHANGELOG.md
 
       - name: Set up Python
+        if: steps.check.outputs.release == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Build release tarball
+        if: steps.check.outputs.release == 'true'
         run: |
           python3 -m venv .venv
           bash packaging/build_tarball.sh
 
-      - name: Update CHANGELOG.md
-        uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: --tag ${{ steps.version.outputs.tag }}
-        env:
-          OUTPUT: CHANGELOG.md
-
-      - name: Commit changelog
+      - name: Commit changelog and tag
+        if: steps.check.outputs.release == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git diff --staged --quiet || git commit -m "🔧 chore: update CHANGELOG.md for ${{ steps.version.outputs.tag }}"
+          git add CHANGELOG.md pyproject.toml
+          git commit -m "🔧 chore: update CHANGELOG.md for ${{ steps.check.outputs.tag }}"
+          git tag -a "${{ steps.check.outputs.tag }}" -m "${{ steps.check.outputs.tag }}"
           git push origin HEAD:main
+          git push origin "${{ steps.check.outputs.tag }}"
+
+      - name: Write release notes to file
+        if: steps.check.outputs.release == 'true'
+        run: |
+          cat > /tmp/release-notes.md <<'RELEASE_NOTES_EOF'
+          ${{ steps.release_notes.outputs.content }}
+          RELEASE_NOTES_EOF
 
       - name: Create GitHub release
+        if: steps.check.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
+          gh release create "${{ steps.check.outputs.tag }}" \
             dist/quiz-cli-deploy.tar.gz \
-            --title "${{ steps.version.outputs.tag }}" \
-            --notes-file "${{ steps.changelog.outputs.content }}"
+            --title "${{ steps.check.outputs.tag }}" \
+            --notes-file /tmp/release-notes.md

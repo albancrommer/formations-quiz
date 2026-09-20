@@ -20,6 +20,11 @@ trim = true
 [git]
 conventional_commits = true
 filter_unconventional = false
+# Strip the leading gitmoji so conventional_commits parsing (needed for
+# --bump) sees "feat: ..." rather than "✨ feat: ...".
+commit_preprocessors = [
+    { pattern = '^\S+\s+(\w+(\(.+\))?!?:)', replace = "${1}" },
+]
 commit_parsers = [
     { message = "^✨ feat", group = "Features" },
     { message = "^🐛 fix", group = "Bug Fixes" },
@@ -28,6 +33,7 @@ commit_parsers = [
     { message = "^♻️ refactor", group = "Refactor" },
     { message = "^✅ test", group = "Testing" },
     { message = "^🔧 chore", group = "Chore" },
+    { message = "^👷 ci", group = "CI" },
     { message = "^feat", group = "Features" },
     { message = "^fix", group = "Bug Fixes" },
     { message = "^docs", group = "Documentation" },
@@ -35,6 +41,7 @@ commit_parsers = [
     { message = "^refactor", group = "Refactor" },
     { message = "^test", group = "Testing" },
     { message = "^chore", group = "Chore" },
+    { message = "^ci", group = "CI" },
     { message = ".*", group = "Other" },
 ]
 filter_commits = false
