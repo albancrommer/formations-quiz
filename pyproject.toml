@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quiz-cli"
+version = "0.1.0"
+description = "CLI quiz engine for half-day training comprehension checks"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "CC-BY-NC-SA" }
+dependencies = [
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+quiz = "quiz.adapters.cli.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

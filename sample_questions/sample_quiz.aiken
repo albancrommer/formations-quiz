@@ -1,0 +1,27 @@
+%kind: theory
+Quel objet Kubernetes garantit qu'un nombre donne de Pods identiques tourne en permanence ?
+A) ConfigMap
+B) ReplicaSet
+C) Secret
+ANSWER: B
+
+%kind: practice
+Quelle commande liste les pods du namespace courant ?
+A) kubectl get pods
+B) kubectl list pods
+C) kubectl show pods
+ANSWER: A
+
+%kind: theory
+Parmi ces ressources, lesquelles servent a exposer une application dans le cluster ? (plusieurs reponses)
+A) Service
+B) Ingress
+C) ConfigMap
+ANSWER: A,B
+
+%kind: practice
+Quelle commande applique un manifeste YAML nomme deployment.yaml ?
+A) kubectl apply -f deployment.yaml
+B) kubectl run deployment.yaml
+C) kubectl create deployment.yaml
+ANSWER: A
