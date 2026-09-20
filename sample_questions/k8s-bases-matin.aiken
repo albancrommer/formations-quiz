@@ -1,0 +1,47 @@
+%kind: theory
+Quel composant du control plane decide sur quel node placer un pod ?
+A) kube-apiserver
+B) kube-scheduler
+C) kubelet
+D) etcd
+ANSWER: B
+
+%kind: theory
+Ou sont stockees les informations de connexion (API, utilisateur, certificat) utilisees par kubectl ?
+A) Dans une ConfigMap
+B) Dans le fichier kubeconfig
+C) Dans le namespace kube-system
+D) Dans etcd
+ANSWER: B
+
+%kind: practice
+Quelle commande liste les pods de tous les namespaces ?
+A) kubectl get pods --all
+B) kubectl get pods -A
+C) kubectl get pods --global
+D) kubectl get all-pods
+ANSWER: B
+
+%kind: practice
+Quelle commande cree un namespace nomme mynamespace ?
+A) kubectl create namespace mynamespace
+B) kubectl new namespace mynamespace
+C) kubectl apply namespace mynamespace
+D) kubectl namespace create mynamespace
+ANSWER: A
+
+%kind: theory
+Pourquoi utiliser k3s plutot que Kubernetes complet pour ce cours ?
+A) k3s n'a pas d'API
+B) k3s est leger et 100% compatible avec l'API K8s
+C) k3s est un fork incompatible
+D) k3s ne supporte pas kubectl
+ANSWER: B
+
+%kind: practice
+Quelle commande affiche le YAML complet d'un pod nomme ubuntu ?
+A) kubectl describe pod ubuntu
+B) kubectl get pod ubuntu -o yaml
+C) kubectl show pod ubuntu
+D) kubectl yaml pod ubuntu
+ANSWER: B

@@ -1,0 +1,47 @@
+%kind: theory
+Qu'est-ce qui garantit que deux conteneurs d'un meme pod peuvent communiquer via localhost ?
+A) Un Service dedie
+B) Ils partagent la meme interface reseau
+C) Un Ingress
+D) etcd
+ANSWER: B
+
+%kind: theory
+Quelle propriete d'un Pod est immutable une fois creee ?
+A) Les labels
+B) Le nombre de conteneurs
+C) Le nom d'un conteneur
+D) Les annotations
+ANSWER: C
+
+%kind: theory
+Que fait un Deployment que ne fait pas un Pod seul ?
+A) Il partage un volume
+B) Il assure le self-healing et gere les rollouts
+C) Il attribue une IP
+D) Il cree un namespace
+ANSWER: B
+
+%kind: practice
+Un Service a "Endpoints: <none>" dans kubectl describe service. Quelle est la cause la plus probable ?
+A) Le cluster est down
+B) Le selector du Service ne correspond a aucun label de pod
+C) Le namespace n'existe pas
+D) Le port est mal type
+ANSWER: B
+
+%kind: theory
+Quelle probe retire un pod des endpoints d'un Service tant qu'elle echoue, sans redemarrer le conteneur ?
+A) livenessProbe
+B) startupProbe
+C) readinessProbe
+D) restartProbe
+ANSWER: C
+
+%kind: practice
+Un pod est en CrashLoopBackOff. Quelle commande permet de voir les logs du crash precedent ?
+A) kubectl logs <pod>
+B) kubectl logs <pod> --previous
+C) kubectl describe pod <pod> --previous
+D) kubectl get events --previous
+ANSWER: B
