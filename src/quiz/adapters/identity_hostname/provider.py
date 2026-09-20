@@ -1,10 +1,10 @@
 """Identity adapter: infers the student's name from the machine hostname.
 
-Rule (best-effort, flagged for trainer review): take the first label of the
-hostname (before the first dot), title-case it. This fits VPS names like
-"sacha.brx2022.uptime-formation.fr" -> "Sacha". Falls back to an interactive
-prompt when the hostname is empty or looks generic (localhost, etc.) so it
-never silently mislabels a result.
+Rule (best-effort, flagged for trainer review), tried in order:
+1. Current VPS naming: "vnc-server-<name>" -> "<Name>" (prefix stripped).
+2. Legacy naming: "<name>.domain..." -> first dotted label, title-cased.
+Falls back to an interactive prompt when the hostname is empty or looks
+generic (localhost, etc.) so it never silently mislabels a result.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ from collections.abc import Callable
 from quiz.domain.models import Student
 
 GENERIC_HOSTNAMES = frozenset({"localhost", "127", "debian", "ubuntu"})
+_VNC_SERVER_PREFIX = "vnc-server-"
 
 
 def _default_prompt() -> str:
@@ -32,9 +33,13 @@ class HostnameIdentityProvider:
 
     def resolve_student(self) -> Student:
         hostname = self._hostname_fn().strip()
-        first_label = hostname.split(".")[0] if hostname else ""
 
-        if not first_label or first_label.lower() in GENERIC_HOSTNAMES:
+        if hostname.lower().startswith(_VNC_SERVER_PREFIX):
+            name = hostname[len(_VNC_SERVER_PREFIX):]
+        else:
+            name = hostname.split(".")[0] if hostname else ""
+
+        if not name or name.lower() in GENERIC_HOSTNAMES:
             return Student(display_name=self._prompt_fn())
 
-        return Student(display_name=first_label.title())
+        return Student(display_name=name.title())

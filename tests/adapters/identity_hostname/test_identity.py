@@ -5,7 +5,25 @@ from quiz.adapters.identity_hostname.provider import (
 from quiz.domain.models import Student
 
 
-def test_resolves_student_from_first_hostname_label():
+def test_resolves_student_from_vnc_server_prefixed_hostname():
+    provider = HostnameIdentityProvider(
+        hostname_fn=lambda: "vnc-server-sacha",
+        prompt_fn=lambda: "unused",
+    )
+
+    assert provider.resolve_student() == Student(display_name="Sacha")
+
+
+def test_resolves_student_from_vnc_server_prefix_case_insensitive():
+    provider = HostnameIdentityProvider(
+        hostname_fn=lambda: "VNC-SERVER-Julien",
+        prompt_fn=lambda: "unused",
+    )
+
+    assert provider.resolve_student() == Student(display_name="Julien")
+
+
+def test_resolves_student_from_legacy_dotted_hostname():
     provider = HostnameIdentityProvider(
         hostname_fn=lambda: "sacha.brx2022.uptime-formation.fr",
         prompt_fn=lambda: "unused",
