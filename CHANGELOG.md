@@ -1,5 +1,17 @@
 # Changelog
+## [0.5.0] - 2026-09-21
+
+### Features
+
+- Replace quiz1/quiz2 wrappers with one friendly quiz command
+
+
 ## [0.4.0] - 2026-09-21
+
+### Chore
+
+- Update CHANGELOG.md for v0.4.0
+
 
 ### Features
 
