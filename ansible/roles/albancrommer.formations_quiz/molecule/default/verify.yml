@@ -1,0 +1,53 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  # Resolve the same defaults the role itself uses, so host_vars overrides
+  # set in molecule.yml (e.g. formations_quiz_student_user) still win.
+  roles:
+    - role: albancrommer.formations_quiz
+      tasks_from: noop.yml
+  tasks:
+    - name: Check quiz1 wrapper exists and is executable
+      ansible.builtin.stat:
+        path: "{{ formations_quiz_bin_dir }}/quiz1"
+      register: quiz1_stat
+
+    - name: Assert quiz1 is installed and executable
+      ansible.builtin.assert:
+        that:
+          - quiz1_stat.stat.exists
+          - quiz1_stat.stat.executable
+
+    - name: Check quiz2 wrapper exists and is executable
+      ansible.builtin.stat:
+        path: "{{ formations_quiz_bin_dir }}/quiz2"
+      register: quiz2_stat
+
+    - name: Assert quiz2 is installed and executable
+      ansible.builtin.assert:
+        that:
+          - quiz2_stat.stat.exists
+          - quiz2_stat.stat.executable
+
+    - name: Run quiz1 end-to-end with scripted answers
+      ansible.builtin.shell:
+        cmd: "printf 'B\\nB\\nB\\nA\\nB\\nB\\n' | {{ formations_quiz_bin_dir }}/quiz1"
+      register: quiz1_run
+      changed_when: false
+
+    - name: Assert quiz1 produced a score
+      ansible.builtin.assert:
+        that:
+          - "'Score :' in quiz1_run.stdout"
+
+    - name: Check a result file was written
+      ansible.builtin.find:
+        paths: "{{ formations_quiz_results_dir }}"
+        patterns: "*.yaml"
+      register: result_files
+
+    - name: Assert at least one result file exists
+      ansible.builtin.assert:
+        that:
+          - result_files.matched > 0

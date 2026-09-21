@@ -1,0 +1,6 @@
+---
+- name: Install formations-quiz on student VPS
+  hosts: quiz_students
+  become: true
+  roles:
+    - role: albancrommer.formations_quiz

@@ -12,6 +12,7 @@ set -euo pipefail
 INSTALL_DIR="${INSTALL_DIR:-/opt/quiz-cli}"
 BIN_DIR="${BIN_DIR:-/usr/local/bin}"
 RESULTS_DIR="${RESULTS_DIR:-/home/stagiaire/quiz-results}"
+STUDENT_USER="${STUDENT_USER:-stagiaire}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ "$(id -u)" -ne 0 ]]; then
@@ -63,8 +64,8 @@ cp "$script_dir/questions/"*.aiken "$INSTALL_DIR/questions/"
 
 echo "==> Preparation du dossier de resultats ($RESULTS_DIR)" >&2
 mkdir -p "$RESULTS_DIR"
-if id stagiaire &>/dev/null; then
-    chown stagiaire:stagiaire "$RESULTS_DIR"
+if id "$STUDENT_USER" &>/dev/null; then
+    chown "$STUDENT_USER:$STUDENT_USER" "$RESULTS_DIR"
 fi
 
 write_wrapper() {

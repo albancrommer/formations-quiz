@@ -5,3 +5,8 @@ __pycache__/
 .pytest_cache/
 build/
 dist/
+
+# Ansible
+ansible/inventory.ini
+ansible/.molecule/
+ansible/roles/*/molecule/*/.molecule/
