@@ -1,5 +1,17 @@
 # Changelog
+## [0.6.0] - 2026-09-21
+
+### Features
+
+- Add qcompile, merges fetched quiz results into one CSV report
+
+
 ## [0.5.0] - 2026-09-21
+
+### Chore
+
+- Update CHANGELOG.md for v0.5.0
+
 
 ### Features
 
