@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from quiz.adapters.identity_hostname.provider import HostnameIdentityProvider
 from quiz.adapters.questions_aiken.parser import AikenParseError, parse_aiken
 from quiz.adapters.results_localfile.sink import LocalFileResultSink
 from quiz.domain.models import Question, Quiz
+from quiz.domain.review import review_attempt
 from quiz.domain.run_quiz import run_quiz
 
 
@@ -22,17 +24,25 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _ask_terminal(question: Question) -> frozenset[str]:
-    print(f"\n{question.prompt}")
-    for choice in question.choices:
-        print(f"  {choice.label}) {choice.text}")
+def _make_terminal_asker(total: int) -> Callable[[Question], frozenset[str]]:
+    position = 0
 
-    while True:
-        raw = input("Votre reponse (ex: A ou A,C) : ")
-        try:
-            return parse_answer_input(raw, question)
-        except ValueError as exc:
-            print(f"  ! {exc}", file=sys.stderr)
+    def ask(question: Question) -> frozenset[str]:
+        nonlocal position
+        position += 1
+
+        print(f"\nQ{position}/{total} : {question.prompt}")
+        for choice in question.choices:
+            print(f"  {choice.label}) {choice.text}")
+
+        while True:
+            raw = input("Votre reponse (ex: A ou A,C) : ")
+            try:
+                return parse_answer_input(raw, question)
+            except ValueError as exc:
+                print(f"  ! {exc}", file=sys.stderr)
+
+    return ask
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -63,7 +73,7 @@ def main(argv: list[str] | None = None) -> int:
     attempt = run_quiz(
         quiz=quiz,
         student=student,
-        answer_question=_ask_terminal,
+        answer_question=_make_terminal_asker(len(quiz.questions)),
         clock=datetime.now,
     )
 
@@ -72,6 +82,18 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"\nScore : {attempt.score}/{attempt.total}")
     print(f"Resultat enregistre dans {args.out}", file=sys.stderr)
+
+    review = review_attempt(quiz, attempt.results)
+    if review.wrong_positions:
+        positions = ", ".join(str(p) for p in review.wrong_positions)
+        print(f"\nVoici les questions sur lesquelles vous vous etes trompe(e) : {positions}")
+
+        reponse = input("Voir les bonnes reponses ? (o/N) : ").strip().lower()
+        if reponse in ("o", "oui", "y", "yes"):
+            for item in review.wrong_items:
+                correct = ", ".join(f"{c.label}) {c.text}" for c in item.correct_choices)
+                print(f"\nQ{item.position} : {item.prompt}")
+                print(f"  Bonne reponse : {correct}")
 
     return 0
 
