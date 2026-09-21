@@ -1,4 +1,11 @@
 # Changelog
+## [0.2.0] - 2026-09-21
+
+### Features
+
+- Add reusable ansible role for VPS deployment
+
+
 ## [0.1.1] - 2026-09-20
 
 ### Bug Fixes
@@ -11,6 +18,8 @@
 ### Chore
 
 - Update CHANGELOG.md for v0.1.0
+
+- Update CHANGELOG.md for v0.1.1
 
 
 ## [0.1.0] - 2026-09-20
