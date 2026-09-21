@@ -1,5 +1,17 @@
 # Changelog
+## [0.3.0] - 2026-09-21
+
+### Features
+
+- Show wrong answers after the quiz, offer to reveal correct ones
+
+
 ## [0.2.0] - 2026-09-21
+
+### Chore
+
+- Update CHANGELOG.md for v0.2.0
+
 
 ### Features
 
