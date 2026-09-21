@@ -1,0 +1,41 @@
+Comment un Secret Kubernetes protege-t-il les donnees sensibles par defaut ?
+A) Chiffrement AES
+B) Hachage SHA-256
+C) Encodage base64
+D) Il ne les protege pas du tout
+ANSWER: C
+
+Quelle est la difference principale entre un Deployment et un StatefulSet ?
+A) Le Deployment gere mieux les bases de donnees
+B) Le StatefulSet ne supporte pas le scaling
+C) Aucune difference
+D) Le StatefulSet fournit des identites de pod stables et un stockage persistant par pod
+ANSWER: D
+
+Quelle commande cree un Secret a partir de valeurs litterales ?
+A) kubectl apply secret CLE=valeur
+B) kubectl create secret generic mon-secret --from-literal=CLE=valeur
+C) kubectl new secret --literal=CLE=valeur
+D) kubectl secret create CLE=valeur
+ANSWER: B
+
+Que cree automatiquement le volumeClaimTemplates d'un StatefulSet ?
+A) Un ConfigMap par pod
+B) Rien, il faut creer les PVC manuellement
+C) Un seul PVC partage par tous les pods
+D) Un PVC distinct par pod (ex: redis-data-redis-set-0)
+ANSWER: D
+
+Que se passe-t-il pour un pod sans requests de ressources definies ?
+A) Il obtient automatiquement le maximum de ressources
+B) Kubernetes le rejette
+C) Il ne peut jamais demarrer
+D) Il peut etre place sur n'importe quel noeud, y compris un noeud deja sature
+ANSWER: D
+
+Quelle commande affiche les cles d'un Secret sans reveler les valeurs ?
+A) kubectl exec secret <nom>
+B) kubectl describe secret <nom>
+C) kubectl get secret <nom> -o yaml
+D) kubectl logs secret <nom>
+ANSWER: B

@@ -1,0 +1,41 @@
+Pourquoi eviter d'utiliser un Service LoadBalancer pour chaque application dans un cluster ?
+A) Il ne supporte pas TLS
+B) Chaque LoadBalancer facture une IP dediee, couteux et ingerable a l'echelle
+C) Il est plus lent qu'un Ingress
+D) Il ne fonctionne pas avec HTTP
+ANSWER: B
+
+Par defaut, comment les pods communiquent-ils entre eux dans un cluster Kubernetes ?
+A) Il faut une NetworkPolicy pour autoriser le moindre trafic
+B) Seuls les pods du meme Deployment communiquent
+C) Tous les pods peuvent communiquer librement, sans isolation
+D) Tout trafic est bloque sauf autorisation explicite
+ANSWER: C
+
+Quelle commande visualise le resultat d'un patch Kustomize sans l'appliquer ?
+A) kustomize preview ./overlays/dev
+B) kubectl apply -k ./overlays/dev --dry-run
+C) kubectl get -k ./overlays/dev
+D) kubectl kustomize ./overlays/dev
+ANSWER: D
+
+Dans un workflow GitOps avec ArgoCD, quelle est la seule source de verite de l'etat du cluster ?
+A) Le dashboard ArgoCD
+B) La base etcd du cluster
+C) Les commandes kubectl executees
+D) Le depot Git
+ANSWER: D
+
+Sur quel type d'information un HorizontalPodAutoscaler (HPA) se base-t-il pour ajuster le nombre de replicas ?
+A) Le nombre de requetes HTTP recues par l'Ingress
+B) Des metriques comme l'utilisation CPU ou RAM des pods
+C) La taille de l'image Docker
+D) Le nombre de noeuds disponibles dans le cluster
+ANSWER: B
+
+Une NetworkPolicy cible les pods app: my-app en autorisant seulement le trafic depuis role: allowed. Un CronJob sans ce label tente d'y acceder. Que se passe-t-il ?
+A) Kubernetes ajoute automatiquement le label
+B) La NetworkPolicy est ignoree pour les CronJobs
+C) L'acces fonctionne normalement
+D) Le trafic est bloque, le Job echoue avec une erreur de connexion
+ANSWER: D
