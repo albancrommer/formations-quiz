@@ -1,5 +1,17 @@
 # Changelog
+## [0.4.0] - 2026-09-21
+
+### Features
+
+- Add K8s Dev quiz content for both half-days
+
+
 ## [0.3.0] - 2026-09-21
+
+### Chore
+
+- Update CHANGELOG.md for v0.3.0
+
 
 ### Features
 
