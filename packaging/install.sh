@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Installs quiz-cli on a student VPS: venv under INSTALL_DIR, question files,
-# and the quiz1/quiz2 wrapper commands in /usr/local/bin.
+# and the `quiz` wrapper command in BIN_DIR.
 #
 # Usage (as root, from an extracted tarball):
 #   ./install.sh
@@ -59,8 +59,8 @@ python3 -m venv "$INSTALL_DIR/venv"
 "$INSTALL_DIR/venv/bin/pip" install --quiet --force-reinstall "$script_dir"/wheel/*.whl >&2
 
 echo "==> Copie des questions" >&2
-mkdir -p "$INSTALL_DIR/questions"
-cp "$script_dir/questions/"*.aiken "$INSTALL_DIR/questions/"
+install -d "$INSTALL_DIR/questions"
+install -m 0644 -t "$INSTALL_DIR/questions" "$script_dir"/questions/*.aiken
 
 echo "==> Preparation du dossier de resultats ($RESULTS_DIR)" >&2
 mkdir -p "$RESULTS_DIR"
@@ -68,19 +68,14 @@ if id "$STUDENT_USER" &>/dev/null; then
     chown "$STUDENT_USER:$STUDENT_USER" "$RESULTS_DIR"
 fi
 
-write_wrapper() {
-    local name="$1" quiz_file="$2"
-    cat > "$BIN_DIR/$name" <<EOF
+quiz_wrapper="$(mktemp)"
+trap 'rm -f "$quiz_wrapper"' EXIT
+cat > "$quiz_wrapper" <<EOF
 #!/bin/sh
-exec "$INSTALL_DIR/venv/bin/quiz" --file "$INSTALL_DIR/questions/$quiz_file" --out "$RESULTS_DIR" "\$@"
+exec "$INSTALL_DIR/venv/bin/quiz" --questions-dir "$INSTALL_DIR/questions" --out "$RESULTS_DIR" "\$@"
 EOF
-    chmod +x "$BIN_DIR/$name"
-    echo "==> Commande installee : $name" >&2
-}
-
-write_wrapper quiz1 k8s-bases-matin.aiken
-write_wrapper quiz2 k8s-bases-apres-midi.aiken
+install -m 0755 "$quiz_wrapper" "$BIN_DIR/quiz"
 
 echo "Installation terminee." >&2
-echo "Commandes disponibles : quiz1 (K8s Bases matin), quiz2 (K8s Bases apres-midi)"
+echo "Commande disponible : quiz"
 echo "Resultats enregistres dans : $RESULTS_DIR"

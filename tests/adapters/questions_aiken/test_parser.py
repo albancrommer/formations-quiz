@@ -1,6 +1,6 @@
 import pytest
 
-from quiz.adapters.questions_aiken.parser import AikenParseError, parse_aiken
+from quiz.adapters.questions_aiken.parser import AikenParseError, extract_title, parse_aiken
 from quiz.domain.models import QuestionKind
 
 
@@ -107,3 +107,40 @@ ANSWER: Z
 """
     with pytest.raises(AikenParseError):
         parse_aiken(text)
+
+
+def test_extracts_title_marker():
+    text = """\
+%title: K8s Bases - Matin
+
+Question un ?
+A) x
+B) y
+ANSWER: A
+"""
+    assert extract_title(text) == "K8s Bases - Matin"
+
+
+def test_extract_title_returns_none_when_absent():
+    text = """\
+Question un ?
+A) x
+B) y
+ANSWER: A
+"""
+    assert extract_title(text) is None
+
+
+def test_parse_aiken_ignores_title_marker_line():
+    text = """\
+%title: K8s Bases - Matin
+
+Question un ?
+A) x
+B) y
+ANSWER: A
+"""
+    questions = parse_aiken(text)
+
+    assert len(questions) == 1
+    assert questions[0].prompt == "Question un ?"

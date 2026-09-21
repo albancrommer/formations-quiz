@@ -1,3 +1,5 @@
+%title: K8s Bases - Matin
+
 %kind: theory
 Quel composant du control plane decide sur quel node placer un pod ?
 A) kube-apiserver

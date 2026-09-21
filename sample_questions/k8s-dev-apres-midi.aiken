@@ -1,3 +1,5 @@
+%title: K8s Dev - Apres-midi
+
 Pourquoi eviter d'utiliser un Service LoadBalancer pour chaque application dans un cluster ?
 A) Il ne supporte pas TLS
 B) Chaque LoadBalancer facture une IP dediee, couteux et ingerable a l'echelle

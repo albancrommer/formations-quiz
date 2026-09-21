@@ -7,6 +7,9 @@ Extensions used here (documented, not standard Aiken):
 - "ANSWER: A,B" for multi-select.
 - An optional leading "%kind: theory|practice" comment line per question,
   defaulting to theory when absent.
+- An optional file-level "%title: <text>" line, giving the quiz a
+  human-friendly display name (see extract_title()). Must appear before
+  the first question.
 """
 
 from __future__ import annotations
@@ -18,10 +21,22 @@ from quiz.domain.models import Choice, Question, QuestionKind
 _CHOICE_RE = re.compile(r"^([A-Z])\)\s*(.+)$")
 _ANSWER_RE = re.compile(r"^ANSWER:\s*(.+)$", re.IGNORECASE)
 _KIND_RE = re.compile(r"^%kind:\s*(\w+)\s*$", re.IGNORECASE)
+_TITLE_RE = re.compile(r"^%title:\s*(.+)$", re.IGNORECASE)
 
 
 class AikenParseError(ValueError):
     pass
+
+
+def extract_title(text: str) -> str | None:
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip()
+        if not line:
+            continue
+        if title_match := _TITLE_RE.match(line):
+            return title_match.group(1).strip()
+        return None
+    return None
 
 
 def parse_aiken(text: str) -> tuple[Question, ...]:
@@ -40,6 +55,8 @@ def _split_blocks(text: str) -> list[list[str]]:
             if current:
                 blocks.append(current)
                 current = []
+            continue
+        if _TITLE_RE.match(line) and not current:
             continue
         current.append(line)
     if current:

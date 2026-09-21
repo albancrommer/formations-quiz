@@ -24,6 +24,8 @@ echo "==> Staging package"
 mkdir -p "$stage/questions"
 cp sample_questions/k8s-bases-matin.aiken "$stage/questions/"
 cp sample_questions/k8s-bases-apres-midi.aiken "$stage/questions/"
+cp sample_questions/k8s-dev-matin.aiken "$stage/questions/"
+cp sample_questions/k8s-dev-apres-midi.aiken "$stage/questions/"
 cp packaging/install.sh "$stage/install.sh"
 chmod +x "$stage/install.sh"
 
