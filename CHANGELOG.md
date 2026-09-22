@@ -1,5 +1,19 @@
 # Changelog
+## [0.7.0] - 2026-09-22
+
+### Features
+
+- Add fetch_results.yml playbook to pull quiz results off VPS
+
+- Group quiz picker by formation, order matin before apres-midi
+
+
 ## [0.6.0] - 2026-09-21
+
+### Chore
+
+- Update CHANGELOG.md for v0.6.0
+
 
 ### Features
 
