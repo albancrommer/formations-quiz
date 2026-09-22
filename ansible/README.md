@@ -29,6 +29,25 @@ See `roles/albancrommer.formations_quiz/defaults/main.yml`. Notably:
   hardcoded — override per-inventory if the student account differs.
 - `formations_quiz_student_user` — defaults to `stagiaire`
 
+## Fetching results
+
+After a training session, pull every student's quiz result files into a
+fresh local directory (one subfolder per host):
+
+```bash
+.venv/bin/ansible-playbook -i inventory.ini fetch_results.yml
+```
+
+This prints the exact command to run next, e.g.:
+
+```
+run qcompile /tmp/formations-quiz-results-XXXXXX
+```
+
+`qcompile` (installed alongside `quiz-cli` on your own machine — see the
+main [README](../README.md)) merges the fetched files into one CSV report,
+one row per attempt.
+
 ## Testing
 
 The role has a [Molecule](https://ansible.readthedocs.io/projects/molecule/)
