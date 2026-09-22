@@ -1,5 +1,17 @@
 # Changelog
+## [0.7.1] - 2026-09-22
+
+### Bug Fixes
+
+- Rework misleading readinessProbe question (K8s Bases apres-midi Q5)
+
+
 ## [0.7.0] - 2026-09-22
+
+### Chore
+
+- Update CHANGELOG.md for v0.7.0
+
 
 ### Features
 
