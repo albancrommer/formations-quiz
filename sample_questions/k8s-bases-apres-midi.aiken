@@ -35,11 +35,11 @@ D) Le port est mal type
 ANSWER: B
 
 %kind: theory
-Quelle probe retire un pod des endpoints d'un Service tant qu'elle echoue, sans redemarrer le conteneur ?
-A) livenessProbe
-B) startupProbe
-C) readinessProbe
-D) restartProbe
+Un pod app: my-app tourne normalement depuis 10 minutes, puis sa readinessProbe commence a echouer (au-dela du failureThreshold). Que se passe-t-il ?
+A) Le pod est redemarre immediatement
+B) Le pod est supprime et recree par le ReplicaSet
+C) Le pod continue de tourner mais est retire des endpoints du Service - plus de trafic route vers lui
+D) Rien, la readinessProbe n'a d'effet qu'au demarrage du pod
 ANSWER: C
 
 %kind: practice
