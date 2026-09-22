@@ -1,3 +1,5 @@
+%formation: Kubernetes Dev
+%session: matin
 %title: K8s Dev - Matin
 
 Comment un Secret Kubernetes protege-t-il les donnees sensibles par defaut ?

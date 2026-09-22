@@ -66,14 +66,18 @@ generic (`localhost`, etc.) the student is prompted for their name instead.
 ### Question format
 
 Questions are written in [Aiken format](https://docs.moodle.org/en/Aiken_format),
-with three extensions:
+with these extensions:
 
 - Multi-select: `ANSWER: A,B` instead of a single letter.
 - Question kind: an optional `%kind: theory` or `%kind: practice` line
   before the question text (defaults to `theory`).
-- File-level title: an optional `%title: <text>` line before the first
-  question, giving the quiz a friendly display name for the picker
-  (falls back to the filename otherwise).
+- File-level markers, each before the first question:
+  - `%title: <text>` — friendly display name for the picker (falls back
+    to the filename otherwise).
+  - `%formation: <text>` — groups quizzes together in the picker, shown
+    as a `--- <formation> ---` header.
+  - `%session: matin|apres-midi` — orders quizzes within a formation
+    (matin before apres-midi; anything else sorts after both).
 
 See `sample_questions/k8s-bases-matin.aiken` for a full example.
 

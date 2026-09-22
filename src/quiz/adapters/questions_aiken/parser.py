@@ -7,9 +7,12 @@ Extensions used here (documented, not standard Aiken):
 - "ANSWER: A,B" for multi-select.
 - An optional leading "%kind: theory|practice" comment line per question,
   defaulting to theory when absent.
-- An optional file-level "%title: <text>" line, giving the quiz a
-  human-friendly display name (see extract_title()). Must appear before
-  the first question.
+- Optional file-level marker lines, each "%<name>: <text>", appearing
+  before the first question:
+  - "%title: <text>" — human-friendly display name (see extract_title()).
+  - "%formation: <text>" — groups quizzes in the picker (see extract_formation()).
+  - "%session: <text>" — e.g. "matin"/"apres-midi", for ordering within
+    a formation (see extract_session()).
 """
 
 from __future__ import annotations
@@ -21,22 +24,37 @@ from quiz.domain.models import Choice, Question, QuestionKind
 _CHOICE_RE = re.compile(r"^([A-Z])\)\s*(.+)$")
 _ANSWER_RE = re.compile(r"^ANSWER:\s*(.+)$", re.IGNORECASE)
 _KIND_RE = re.compile(r"^%kind:\s*(\w+)\s*$", re.IGNORECASE)
-_TITLE_RE = re.compile(r"^%title:\s*(.+)$", re.IGNORECASE)
+_FILE_MARKER_RE = re.compile(r"^%(\w+):\s*(.+)$", re.IGNORECASE)
 
 
 class AikenParseError(ValueError):
     pass
 
 
-def extract_title(text: str) -> str | None:
+def _extract_marker(text: str, name: str) -> str | None:
     for raw_line in text.splitlines():
         line = raw_line.rstrip()
         if not line:
             continue
-        if title_match := _TITLE_RE.match(line):
-            return title_match.group(1).strip()
-        return None
+        marker_match = _FILE_MARKER_RE.match(line)
+        if not marker_match:
+            return None
+        if marker_match.group(1).lower() == name:
+            return marker_match.group(2).strip()
+        continue
     return None
+
+
+def extract_title(text: str) -> str | None:
+    return _extract_marker(text, "title")
+
+
+def extract_formation(text: str) -> str | None:
+    return _extract_marker(text, "formation")
+
+
+def extract_session(text: str) -> str | None:
+    return _extract_marker(text, "session")
 
 
 def parse_aiken(text: str) -> tuple[Question, ...]:
@@ -46,9 +64,18 @@ def parse_aiken(text: str) -> tuple[Question, ...]:
     )
 
 
+_FILE_LEVEL_MARKERS = {"title", "formation", "session"}
+
+
+def _is_file_level_marker(line: str) -> bool:
+    marker_match = _FILE_MARKER_RE.match(line)
+    return bool(marker_match) and marker_match.group(1).lower() in _FILE_LEVEL_MARKERS
+
+
 def _split_blocks(text: str) -> list[list[str]]:
     blocks: list[list[str]] = []
     current: list[str] = []
+    seen_content = False
     for raw_line in text.splitlines():
         line = raw_line.rstrip()
         if not line:
@@ -56,8 +83,9 @@ def _split_blocks(text: str) -> list[list[str]]:
                 blocks.append(current)
                 current = []
             continue
-        if _TITLE_RE.match(line) and not current:
+        if not seen_content and not current and _is_file_level_marker(line):
             continue
+        seen_content = True
         current.append(line)
     if current:
         blocks.append(current)

@@ -1,6 +1,12 @@
 import pytest
 
-from quiz.adapters.questions_aiken.parser import AikenParseError, extract_title, parse_aiken
+from quiz.adapters.questions_aiken.parser import (
+    AikenParseError,
+    extract_formation,
+    extract_session,
+    extract_title,
+    parse_aiken,
+)
 from quiz.domain.models import QuestionKind
 
 
@@ -133,6 +139,43 @@ ANSWER: A
 
 def test_parse_aiken_ignores_title_marker_line():
     text = """\
+%title: K8s Bases - Matin
+
+Question un ?
+A) x
+B) y
+ANSWER: A
+"""
+    questions = parse_aiken(text)
+
+    assert len(questions) == 1
+    assert questions[0].prompt == "Question un ?"
+
+
+def test_extracts_formation_marker():
+    text = """\
+%formation: Kubernetes Bases
+%session: matin
+
+Question un ?
+A) x
+B) y
+ANSWER: A
+"""
+    assert extract_formation(text) == "Kubernetes Bases"
+    assert extract_session(text) == "matin"
+
+
+def test_extract_formation_returns_none_when_absent():
+    text = "Question un ?\nA) x\nB) y\nANSWER: A\n"
+    assert extract_formation(text) is None
+    assert extract_session(text) is None
+
+
+def test_parse_aiken_ignores_formation_and_session_marker_lines():
+    text = """\
+%formation: Kubernetes Bases
+%session: matin
 %title: K8s Bases - Matin
 
 Question un ?

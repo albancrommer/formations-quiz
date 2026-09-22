@@ -15,7 +15,7 @@ from pathlib import Path
 
 from quiz.adapters.cli.prompting import parse_answer_input
 from quiz.adapters.identity_hostname.provider import HostnameIdentityProvider
-from quiz.adapters.questions_aiken.discovery import AvailableQuiz, discover_quizzes
+from quiz.adapters.questions_aiken.discovery import AvailableQuiz, discover_quizzes, group_quizzes
 from quiz.adapters.questions_aiken.parser import AikenParseError, extract_title, parse_aiken
 from quiz.adapters.results_localfile.sink import LocalFileResultSink
 from quiz.domain.models import Question, Quiz
@@ -45,20 +45,26 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 
 def _choose_quiz(available: tuple[AvailableQuiz, ...]) -> Path | None:
     print("\n=== Quiz disponibles ===")
-    for i, quiz in enumerate(available, start=1):
-        print(f"  {i}) {quiz.title}")
+
+    numbered: list[AvailableQuiz] = []
+    for group in group_quizzes(available):
+        if group.formation:
+            print(f"\n--- {group.formation} ---")
+        for quiz in group.quizzes:
+            numbered.append(quiz)
+            print(f"  {len(numbered)}) {quiz.title}")
     print()
 
     while True:
-        raw = input(f"Choisissez un quiz (1-{len(available)}) : ").strip()
+        raw = input(f"Choisissez un quiz (1-{len(numbered)}) : ").strip()
         try:
             choice = int(raw)
         except ValueError:
             print("  ! Entrez un numero.", file=sys.stderr)
             continue
-        if 1 <= choice <= len(available):
-            return available[choice - 1].path
-        print(f"  ! Choisissez un numero entre 1 et {len(available)}.", file=sys.stderr)
+        if 1 <= choice <= len(numbered):
+            return numbered[choice - 1].path
+        print(f"  ! Choisissez un numero entre 1 et {len(numbered)}.", file=sys.stderr)
 
 
 def _make_terminal_asker(total: int) -> Callable[[Question], frozenset[str]]:

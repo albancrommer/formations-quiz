@@ -1,3 +1,5 @@
+%formation: Kubernetes Dev
+%session: apres-midi
 %title: K8s Dev - Apres-midi
 
 Pourquoi eviter d'utiliser un Service LoadBalancer pour chaque application dans un cluster ?
