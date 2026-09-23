@@ -68,6 +68,12 @@ jobs:
           python3 -m venv .venv
           bash packaging/build_tarball.sh
 
+      - name: Build ansible role tarball
+        if: steps.check.outputs.release == 'true'
+        run: |
+          tar -czf "dist/albancrommer.formations_quiz-${{ steps.check.outputs.version }}.tar.gz" \
+            -C ansible/roles albancrommer.formations_quiz
+
       - name: Commit changelog and tag
         if: steps.check.outputs.release == 'true'
         run: |
@@ -93,5 +99,6 @@ jobs:
         run: |
           gh release create "${{ steps.check.outputs.tag }}" \
             dist/quiz-cli-deploy.tar.gz \
+            "dist/albancrommer.formations_quiz-${{ steps.check.outputs.version }}.tar.gz" \
             --title "${{ steps.check.outputs.tag }}" \
             --notes-file /tmp/release-notes.md

@@ -29,6 +29,33 @@ See `roles/albancrommer.formations_quiz/defaults/main.yml`. Notably:
   hardcoded — override per-inventory if the student account differs.
 - `formations_quiz_student_user` — defaults to `stagiaire`
 
+## Installing the role independently
+
+The role (`albancrommer.formations_quiz`) is also published as its own
+tarball on every [GitHub Release](https://github.com/albancrommer/formations-quiz/releases),
+alongside the CLI tarball — no Ansible Galaxy account or publish step needed.
+
+To use it from another project, without cloning this whole repo, add it to
+a `requirements.yml`:
+
+```yaml
+roles:
+  - src: https://github.com/albancrommer/formations-quiz/releases/download/vX.Y.Z/albancrommer.formations_quiz-X.Y.Z.tar.gz
+    name: albancrommer.formations_quiz
+```
+
+(replace `X.Y.Z` with the release version you want — see the Releases page
+for the latest), then:
+
+```bash
+ansible-galaxy role install -r requirements.yml
+```
+
+`name:` is required — without it, `ansible-galaxy` derives the installed
+directory name from the URL, which won't match `albancrommer.formations_quiz`
+and breaks anything that references the role by that name (like `site.yml`
+in this repo).
+
 ## Fetching results
 
 After a training session, pull every student's quiz result files into a
