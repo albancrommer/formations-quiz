@@ -1,5 +1,17 @@
 # Changelog
+## [0.9.0] - 2026-09-23
+
+### Features
+
+- Publish the ansible role as a standalone release tarball
+
+
 ## [0.8.0] - 2026-09-23
+
+### Chore
+
+- Update CHANGELOG.md for v0.8.0
+
 
 ### Features
 
