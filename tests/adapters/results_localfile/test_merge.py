@@ -1,4 +1,4 @@
-from quiz.adapters.results_localfile.merge import AttemptRow, collect_attempts
+from quiz.adapters.results_localfile.merge import AttemptRow, SummaryRow, collect_attempts, summarize_attempts
 
 
 def write_result(path, *, quiz_id, student, score, total, started_at, finished_at):
@@ -118,3 +118,88 @@ def test_collect_attempts_ignores_non_yaml_files(tmp_path):
     rows = collect_attempts(tmp_path)
 
     assert rows == []
+
+
+def make_row(*, student, quiz_id, score, total=6, finished_at="2026-09-21T09:00:00"):
+    return AttemptRow(
+        student=student,
+        quiz_id=quiz_id,
+        score=score,
+        total=total,
+        started_at=finished_at,
+        finished_at=finished_at,
+        source_file=None,
+    )
+
+
+def test_summarize_single_attempt_leaves_worst_score_empty():
+    rows = [make_row(student="Yg", quiz_id="k8s-bases-matin", score=6)]
+
+    summary = summarize_attempts(rows)
+
+    assert summary == [
+        SummaryRow(
+            student="Yg",
+            quiz_id="k8s-bases-matin",
+            attempts=1,
+            worst_score=None,
+            best_score=6,
+            total=6,
+        )
+    ]
+
+
+def test_summarize_multiple_attempts_tracks_worst_and_best():
+    rows = [
+        make_row(student="Yg", quiz_id="k8s-bases-apres-midi", score=4, finished_at="2026-09-22T12:00:53"),
+        make_row(student="Yg", quiz_id="k8s-bases-apres-midi", score=6, finished_at="2026-09-22T14:04:20"),
+    ]
+
+    summary = summarize_attempts(rows)
+
+    assert summary == [
+        SummaryRow(
+            student="Yg",
+            quiz_id="k8s-bases-apres-midi",
+            attempts=2,
+            worst_score=4,
+            best_score=6,
+            total=6,
+        )
+    ]
+
+
+def test_summarize_groups_by_student_and_quiz_independently():
+    rows = [
+        make_row(student="Yg", quiz_id="k8s-bases-matin", score=6),
+        make_row(student="Yg", quiz_id="k8s-bases-apres-midi", score=4),
+        make_row(student="Yg", quiz_id="k8s-bases-apres-midi", score=6),
+        make_row(student="Sacha", quiz_id="k8s-bases-matin", score=5),
+    ]
+
+    summary = summarize_attempts(rows)
+
+    by_key = {(r.student, r.quiz_id): r for r in summary}
+    assert by_key[("Yg", "k8s-bases-matin")].attempts == 1
+    assert by_key[("Yg", "k8s-bases-apres-midi")].attempts == 2
+    assert by_key[("Sacha", "k8s-bases-matin")].attempts == 1
+
+
+def test_summarize_sorted_by_student_then_quiz():
+    rows = [
+        make_row(student="Yg", quiz_id="k8s-dev-matin", score=6),
+        make_row(student="Sacha", quiz_id="k8s-bases-matin", score=5),
+        make_row(student="Yg", quiz_id="k8s-bases-matin", score=6),
+    ]
+
+    summary = summarize_attempts(rows)
+
+    assert [(r.student, r.quiz_id) for r in summary] == [
+        ("Sacha", "k8s-bases-matin"),
+        ("Yg", "k8s-bases-matin"),
+        ("Yg", "k8s-dev-matin"),
+    ]
+
+
+def test_summarize_empty_list_returns_empty_list():
+    assert summarize_attempts([]) == []

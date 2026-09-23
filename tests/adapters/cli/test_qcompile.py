@@ -17,7 +17,7 @@ results: []
     )
 
 
-def test_writes_csv_with_one_row_per_attempt(tmp_path):
+def test_writes_csv_with_one_row_per_student_and_quiz(tmp_path):
     results_dir = tmp_path / "results"
     results_dir.mkdir()
     write_result(
@@ -46,10 +46,47 @@ def test_writes_csv_with_one_row_per_attempt(tmp_path):
     with out_csv.open(newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 2
-    assert rows[0]["student"] == "Sacha"
-    assert rows[0]["quiz_id"] == "k8s-bases-matin"
-    assert rows[0]["score"] == "5"
+    # Sorted by student: Julien before Sacha.
+    assert rows[0]["student"] == "Julien"
+    assert rows[0]["quiz_id"] == "k8s-dev-matin"
+    assert rows[0]["attempts"] == "1"
+    assert rows[0]["worst_score"] == ""
+    assert rows[0]["best_score"] == "6"
     assert rows[0]["total"] == "6"
+
+
+def test_collapses_retakes_into_one_row_with_worst_and_best(tmp_path):
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    write_result(
+        results_dir / "first.yaml",
+        quiz_id="k8s-bases-apres-midi",
+        student="Yg",
+        score=4,
+        total=6,
+        started_at="2026-09-22T12:00:00",
+        finished_at="2026-09-22T12:00:53",
+    )
+    write_result(
+        results_dir / "second.yaml",
+        quiz_id="k8s-bases-apres-midi",
+        student="Yg",
+        score=6,
+        total=6,
+        started_at="2026-09-22T14:04:00",
+        finished_at="2026-09-22T14:04:20",
+    )
+    out_csv = tmp_path / "report.csv"
+
+    exit_code = main([str(results_dir), "--out", str(out_csv)])
+
+    assert exit_code == 0
+    with out_csv.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    assert len(rows) == 1
+    assert rows[0]["attempts"] == "2"
+    assert rows[0]["worst_score"] == "4"
+    assert rows[0]["best_score"] == "6"
 
 
 def test_defaults_output_path_to_report_csv_in_cwd(tmp_path, monkeypatch):

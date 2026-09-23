@@ -93,4 +93,6 @@ qcompile <results-dir> [--out report.csv]
 Recursively finds every `*.yaml` result file under `<results-dir>` (works
 whether they're flat or organized in per-host subfolders), skips malformed
 or incomplete files with a warning on stderr, and writes one CSV row per
-attempt: student, quiz, score, total, timestamps.
+**student × quiz** (not per attempt — retakes are collapsed): `student`,
+`quiz_id`, `attempts`, `worst_score`, `best_score`, `total`. `worst_score`
+is left empty when there's only one attempt (nothing to be "worst" of).

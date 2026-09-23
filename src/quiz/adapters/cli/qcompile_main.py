@@ -16,9 +16,9 @@ import csv
 import sys
 from pathlib import Path
 
-from quiz.adapters.results_localfile.merge import collect_attempts
+from quiz.adapters.results_localfile.merge import collect_attempts, summarize_attempts
 
-FIELDNAMES = ("student", "quiz_id", "score", "total", "started_at", "finished_at", "source_file")
+FIELDNAMES = ("student", "quiz_id", "attempts", "worst_score", "best_score", "total")
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
@@ -37,11 +37,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Erreur : dossier introuvable : {args.results_dir}", file=sys.stderr)
         return 1
 
-    rows = collect_attempts(args.results_dir)
+    attempts = collect_attempts(args.results_dir)
 
-    if not rows:
+    if not attempts:
         print(f"Erreur : aucun resultat trouve dans {args.results_dir}", file=sys.stderr)
         return 1
+
+    rows = summarize_attempts(attempts)
 
     with args.out.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
@@ -51,15 +53,17 @@ def main(argv: list[str] | None = None) -> int:
                 {
                     "student": row.student,
                     "quiz_id": row.quiz_id,
-                    "score": row.score,
+                    "attempts": row.attempts,
+                    "worst_score": row.worst_score if row.worst_score is not None else "",
+                    "best_score": row.best_score,
                     "total": row.total,
-                    "started_at": row.started_at,
-                    "finished_at": row.finished_at,
-                    "source_file": str(row.source_file),
                 }
             )
 
-    print(f"{len(rows)} resultat(s) compile(s) dans {args.out}")
+    print(
+        f"{len(attempts)} tentative(s), {len(rows)} combinaison(s) etudiant/quiz "
+        f"compilees dans {args.out}"
+    )
     return 0
 
 

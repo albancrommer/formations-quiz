@@ -24,7 +24,38 @@ class AttemptRow:
     total: int
     started_at: str
     finished_at: str
-    source_file: Path
+    source_file: Path | None
+
+
+@dataclass(frozen=True)
+class SummaryRow:
+    student: str
+    quiz_id: str
+    attempts: int
+    worst_score: int | None
+    best_score: int
+    total: int
+
+
+def summarize_attempts(rows: list[AttemptRow]) -> list[SummaryRow]:
+    grouped: dict[tuple[str, str], list[AttemptRow]] = {}
+    for row in rows:
+        grouped.setdefault((row.student, row.quiz_id), []).append(row)
+
+    summary = [
+        SummaryRow(
+            student=student,
+            quiz_id=quiz_id,
+            attempts=len(group),
+            worst_score=min(r.score for r in group) if len(group) > 1 else None,
+            best_score=max(r.score for r in group),
+            total=max(r.total for r in group),
+        )
+        for (student, quiz_id), group in grouped.items()
+    ]
+
+    summary.sort(key=lambda r: (r.student, r.quiz_id))
+    return summary
 
 
 def collect_attempts(results_dir: Path) -> list[AttemptRow]:
