@@ -1,9 +1,21 @@
 # Changelog
+## [0.8.0] - 2026-09-23
+
+### Features
+
+- Qcompile now summarizes per student x quiz, not per attempt
+
+
 ## [0.7.1] - 2026-09-22
 
 ### Bug Fixes
 
 - Rework misleading readinessProbe question (K8s Bases apres-midi Q5)
+
+
+### Chore
+
+- Update CHANGELOG.md for v0.7.1
 
 
 ## [0.7.0] - 2026-09-22
